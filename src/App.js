@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import MoviesList from './components/MoviesList';
 import './App.css';
+import AddMovie from './components/AddMovie';
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [movies, setMovies] = useState([]);
   const [isError, setIsError] = useState(null);
-  const [retrying, setRetrying] = useState(false);
 
 
-  const getDataFromServer = async () => {
+  const getDataFromServer = useCallback(async () => {
     setIsLoading(true);
     try {
-      const fetchData = await fetch("https://swapi.dev/api/films/");
+      const fetchData = await fetch("https://console.firebase.google.com/u/0/project/reactsampleapi-1d96c/database/reactsampleapi-1d96c-default-rtdb/data/~2F");
       if (!fetchData.ok) {
         throw new Error('Something went wrong');
       }
@@ -31,53 +31,37 @@ function App() {
       setIsError(error.message);
     }
     setIsLoading(false);
-  };
+  },[]);
 
+  useEffect(()=>{
+    
+          getDataFromServer()
+  },[getDataFromServer])
   
-  useEffect(() => {
-   
-    getDataFromServer();
+ function handleLoading(){
+  setIsError(null)
+  
+ }
 
-    let retryInterval;
+ function addMovieHandler(){
 
-    if (isError && !retrying) {
-      retryInterval = setInterval(() => {
-        getDataFromServer(); 
-      }, 1000);
-      setRetrying(true); 
-
-      return () => {
-        clearInterval(retryInterval);
-        setRetrying(false);
-      };
-    }
-
-    return () => {
-      if (retryInterval) {
-        clearInterval(retryInterval); 
-      }
-    };
-  }, [isError, retrying]);
-
-  // Cancel retrying logic
-  const cancelRetry = () => {
-    setIsError(null); 
-    setRetrying(false); 
-  };
-
+ }
   return (
     <React.Fragment>
+    <section>
+      <AddMovie onAddMovie={addMovieHandler}/>
+    </section>
       <section>
         <button onClick={getDataFromServer}>Fetch Movies</button>
       </section>
       <section>
-        {isLoading && <p>Content Loading Please Wait...</p>}
+        {isLoading  && <p>Content Loading Please Wait...</p>}
         {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
         {!isLoading && !isError && movies.length === 0 && <>No Movies To Show</>}
         {!isLoading && isError && (
           <>
             <p>Something went wrong. Please wait, we are re-trying...</p>
-            <button onClick={cancelRetry}>Cancel Retrying</button>
+            <button onClick={handleLoading}>Cancel Retrying</button>
           </>
         )}
       </section>
