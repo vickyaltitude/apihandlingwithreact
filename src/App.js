@@ -12,17 +12,19 @@ function App() {
   const getDataFromServer = useCallback(async () => {
     setIsLoading(true);
     try {
-      const fetchData = await fetch("https://console.firebase.google.com/u/0/project/reactsampleapi-1d96c/database/reactsampleapi-1d96c-default-rtdb/data/~2F/movies.com");
+      const fetchData = await fetch("https://crudcrud.com/api/cd059c1c532b4aaa8008509a48d4ebbf/movies");
+      
       if (!fetchData.ok) {
         throw new Error('Something went wrong');
       }
       const parsed = await fetchData.json();
-      let optimized = parsed.results.map(movie => {
+      console.log(parsed)
+      let optimized = parsed.map(movie => {
         return {
-          id: movie.episode_id,
+          id: movie._id,
           title: movie.title,
-          releaseDate: movie.release_date,
-          openingText: movie.opening_crawl,
+          releaseDate: movie.releaseDate,
+          openingText: movie.openingText,
         };
       });
       setMovies(optimized);
@@ -43,8 +45,28 @@ function App() {
   
  }
 
- function addMovieHandler(movies){
-     console.log(movies)
+ async function addMovieHandler(movies){
+
+     const sendData = await fetch('https://crudcrud.com/api/cd059c1c532b4aaa8008509a48d4ebbf/movies',{
+      method: 'POST',
+      body: JSON.stringify(movies),
+      headers:{
+        "Content-Type": 'application/json'
+      }
+     });
+     const parsed = await sendData.json();
+     console.log(parsed)
+
+ }
+
+ async function deleteMovie(id){
+  console.log(id)
+  const fetchData = await fetch(`https://crudcrud.com/api/cd059c1c532b4aaa8008509a48d4ebbf/movies/${id}`,{
+    method: 'DELETE'
+  });
+  if(fetchData.status){
+    getDataFromServer()
+  }
  }
   return (
     <React.Fragment>
@@ -56,7 +78,7 @@ function App() {
       </section>
       <section>
         {isLoading  && <p>Content Loading Please Wait...</p>}
-        {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
+        {!isLoading && movies.length > 0 && <MoviesList handleDeleteMovie={deleteMovie} movies={movies} />}
         {!isLoading && !isError && movies.length === 0 && <>No Movies To Show</>}
         {!isLoading && isError && (
           <>
