@@ -12,7 +12,7 @@ function App() {
   const getDataFromServer = useCallback(async () => {
     setIsLoading(true);
     try {
-      const fetchData = await fetch("https://console.firebase.google.com/u/0/project/reactsampleapi-1d96c/database/reactsampleapi-1d96c-default-rtdb/data/~2F");
+      const fetchData = await fetch("https://console.firebase.google.com/u/0/project/reactsampleapi-1d96c/database/reactsampleapi-1d96c-default-rtdb/data/~2F/movies.com");
       if (!fetchData.ok) {
         throw new Error('Something went wrong');
       }
@@ -43,8 +43,8 @@ function App() {
   
  }
 
- function addMovieHandler(){
-
+ function addMovieHandler(movies){
+     console.log(movies)
  }
   return (
     <React.Fragment>
